@@ -38,7 +38,7 @@ jobs:
     - name: Install Nasm
       run: |
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip
-        &'C:\Program Files\7-Zip\7z.exe' x nasm-2.15.05-win64.7z -o'D:'
+        &'C:\Program Files\7-Zip\7z.exe' x nasm-2.15.05-win64.zip -o'D:'
         mv 'D:\nasm-2.15.05\nasm.exe' 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
 
     - name: Add msbuild to PATH
