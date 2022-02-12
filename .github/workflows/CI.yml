@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-    WINSYSTEM: '8.1'
+  WINSYSTEM: '8.1'
 
 jobs:
   build:
