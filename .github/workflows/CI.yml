@@ -45,8 +45,8 @@ jobs:
 
     - name: Build the package (x64)
       env:
-        MPCHC_MSYS: C:\msys64
-        MPCHC_MINGW64: C:\msys64\mingw64
+        MPCHC_MSYS: 'C:\msys64'
+        MPCHC_MINGW64: 'C:\msys64\mingw64'
         MSYS2_PATH_TYPE: inherit
       shell: cmd
       run: |
