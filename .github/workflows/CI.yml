@@ -38,7 +38,7 @@ jobs:
     - name: Install Nasm
       run: |
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip
-        mv nasm.exe C:\Program Files\Microsoft Visual Studio\2022\Community\VC
+        mv nasm.exe C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1    
@@ -48,6 +48,7 @@ jobs:
         MPCHC_MSYS: 'C:\msys64'
         MPCHC_MINGW64: 'C:\msys64\mingw64'
         MSYS2_PATH_TYPE: inherit
+        MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
         ./build.bat
