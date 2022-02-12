@@ -19,7 +19,7 @@ jobs:
     - name: Set ENV
       shell: cmd
       run: |
-        set Path=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%path% 
+        set Path=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC;C:\msys64\mingw64\bin;C:\msys64\usr\bin;%path% 
 
     - name: Install polib      
       run: |
