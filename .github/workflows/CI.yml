@@ -47,6 +47,9 @@ jobs:
       
     - name: Checkout modules
       run: git submodule update --init --recursive         
+   
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1 
 
     - name: Build the package (x64)
       env:
@@ -56,7 +59,9 @@ jobs:
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
-        ./build.bat x64 Release Packages
+        msbuild .\mpc-hc.sln /m /p:Configuration=Release
+        msbuild .\mpciconlib.sln 
+        msbuild .\mpcresources.sln
 
     - name: Upload 7z archives (x64)
       uses: actions/upload-artifact@v2
