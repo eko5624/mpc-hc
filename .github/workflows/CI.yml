@@ -7,7 +7,6 @@ jobs:
   build:
     runs-on: windows-2022
     steps:   
-    - uses: eko5624/checkout@v2
     - name: Install msys2
       uses: msys2/setup-msys2@v2
       with:
@@ -40,7 +39,16 @@ jobs:
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip
         &'C:\Program Files\7-Zip\7z.exe' x nasm-2.15.05-win64.zip -o'D:'
         mv 'D:\nasm-2.15.05\nasm.exe' 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
-
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: true
+      
+    - name: Checkout modules
+      run: git submodule update --init --recursive
+      
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1    
 
@@ -52,7 +60,6 @@ jobs:
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
-        set PATH
         ./build.bat x64 Release Packages
 
     - name: Upload 7z archives (x64)
