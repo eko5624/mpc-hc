@@ -15,7 +15,7 @@ jobs:
       with:
         release: false
         update: true
-        install: base-devel make pkg-config diffutils    
+        install: base-devel autotools diffutils    
 
     - name: Set ENV
       shell: cmd
