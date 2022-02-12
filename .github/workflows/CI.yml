@@ -52,6 +52,7 @@ jobs:
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
+        set PATH
         ./build.bat
 
     - name: Upload 7z archives (x64)
