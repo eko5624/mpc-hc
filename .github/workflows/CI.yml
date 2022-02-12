@@ -12,7 +12,6 @@ jobs:
       with:
         release: false
         update: true
-        location:  ${{ env.MSYS }}
         install: make pkg-config diffutils    
 
     - name: Set ENV
