@@ -14,7 +14,6 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         release: false
-        update: true
         install: base-devel autotools diffutils    
 
     - name: Set ENV
@@ -29,7 +28,7 @@ jobs:
     - name: Setup Toolchain
       run: |
         curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z
-        &'C:\Program Files\7-Zip\7z.exe' x *.7z -o'C:\msys64\mingw64' 
+        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'C:\msys64\mingw64' 
     
     - name: Install Yasm
       run: |
