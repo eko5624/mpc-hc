@@ -43,11 +43,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
-        submodules: true
-      
-    - name: Checkout modules
-      run: git submodule update --init --recursive
+        fetch-depth: 0    
       
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1    
