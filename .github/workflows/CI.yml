@@ -66,6 +66,7 @@ jobs:
         MPCHC_MSYS: 'C:\msys64'
         MPCHC_MINGW64: 'C:\msys64\mingw64'
         MSYS2_PATH_TYPE: inherit
+        MPCBE_WINSDK_VER: ${{ env.WINSYSTEM }}
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
