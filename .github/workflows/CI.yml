@@ -63,6 +63,7 @@ jobs:
         MPCHC_MINGW64: 'C:\msys64\mingw64'
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: ${{ env.WINSYSTEM }}
+        MPCHC_PYTHON: 'C:\hostedtoolcache\windows\Python\3.7.9\x64'
         MPCHC_VS_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
