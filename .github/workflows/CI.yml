@@ -13,7 +13,7 @@ jobs:
     - name: Install msys2
       uses: msys2/setup-msys2@v2
       with:
-        location: D:\
+        location: ${{ env.MSYS }}
         install: base-devel autotools     
 
     - name: Set ENV
