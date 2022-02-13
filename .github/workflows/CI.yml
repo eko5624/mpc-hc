@@ -23,7 +23,7 @@ jobs:
 
     - name: Install polib      
       run: |
-        pip install polib                  
+        pip install --upgrade polib                  
 
     - name: Setup Toolchain
       run: |
