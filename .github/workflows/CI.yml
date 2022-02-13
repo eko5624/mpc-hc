@@ -25,7 +25,8 @@ jobs:
    
     - name: Install polib      
       run: |
-        pip install --upgrade polib                  
+        pip install polib 
+        python -c 'import sys; import polib; print(polib.escape(""Testing polib..."")); print(sys.version);' 
 
     - name: Setup Toolchain
       run: |
