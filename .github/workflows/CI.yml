@@ -25,7 +25,9 @@ jobs:
       shell: cmd
       run: |
         set Path=${{ env.pythonLocation}};${{ env.VC_DIR }};${{ env.MSYS }}\msys64\mingw64\bin;${{ env.MSYS }}\msys64\usr\bin;
-
+        set Path=%Path%C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        echo CLEAN_PATH=%path% > %GITHUB_ENV%
+   
     - name: Install polib      
       run: |
         pip install --upgrade polib                  
@@ -69,6 +71,7 @@ jobs:
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: 8.1
         MPCHC_GIT: 'C:\Program Files\Git'
+        PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
         ./build.bat x64 Release Packages
