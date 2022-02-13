@@ -73,8 +73,8 @@ jobs:
     - name: Build the package (x64)
       env:
         MPCHC_MSYS: ${{ env.MSYS }}msys64
-        MPCHC_MINGW32: ${{ env.MSYS }}msys64\mingw64'
-        MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64'
+        MPCHC_MINGW32: ${{ env.MSYS }}msys64\mingw64
+        MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: ${{ env.WINSYSTEM }}
