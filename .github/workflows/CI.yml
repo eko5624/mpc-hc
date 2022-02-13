@@ -5,18 +5,21 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
+    env:
+      VC_DIR: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
+      MSYS: 'D:\'
     steps:   
     - name: Install msys2
       uses: msys2/setup-msys2@v2
       with:
-        release: false
-        install: base-devel autotools diffutils    
+        location: D:\
+        install: base-devel autotools     
 
     - name: Set ENV
       shell: cmd
       run: |
-        set Path=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC;C:\msys64\mingw64\bin;C:\msys64\usr\bin;%path% 
+        set Path=C:\hostedtoolcache\windows\Python\3.9.9\x64;${{ env.VC_DIR }};D:\msys64\mingw64\bin;D:\msys64\usr\bin;
 
     - name: Install polib      
       run: |
@@ -25,18 +28,18 @@ jobs:
     - name: Setup Toolchain
       run: |
         curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z
-        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'C:\msys64\mingw64' 
+        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'D:\msys64\mingw64' 
     
     - name: Install Yasm
       run: |
         curl -OL http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe
-        mv yasm-1.3.0-win64.exe C:\msys64\usr\bin\yasm.exe                  
+        mv yasm-1.3.0-win64.exe D:\msys64\usr\bin\yasm.exe                  
 
     - name: Install Nasm
       run: |
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip
         &'C:\Program Files\7-Zip\7z.exe' x nasm-2.15.05-win64.zip -o'D:'
-        mv 'D:\nasm-2.15.05\nasm.exe' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
+        mv 'D:\nasm-2.15.05\nasm.exe' 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
     
     - name: Install Windows 8.1 SDK
       shell: powershell
@@ -55,20 +58,21 @@ jobs:
 
     - name: Build the package (x64)
       env:
-        MPCHC_MSYS: 'C:\msys64'
-        MPCHC_MINGW64: 'C:\msys64\mingw64'
+        MPCHC_MSYS: 'D:\msys64'
+        MPCHC_MINGW32: 'D:\msys64\mingw64'
+        MPCHC_MINGW64: 'D:\msys64\mingw64'
+        MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: 8.1
         MPCHC_PYTHON: 'C:\hostedtoolcache\windows\Python\3.7.9\x64'
-        MPCHC_VS_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'
+        MPCHC_VS_PATH: ${{ env.VC_DIR }}
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
-        ./build.bat Build x86 Release Packages
-
+        ./build.bat x64 Release Packages
 
     - name: Upload 7z archives (x64)
       uses: actions/upload-artifact@v2
       with:
-        name: MPC-HC 
-        path: bin\mpc-hc_x86   
+        name: MPC-HC-x64 
+        path: bin/*x64.7z   
