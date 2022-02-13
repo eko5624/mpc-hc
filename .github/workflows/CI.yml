@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
     env:
       VC_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
-      MSYS: D:\
+      MSYS: 'D:\'
     steps:   
     - name: Install msys2
       uses: msys2/setup-msys2@v2
@@ -51,7 +51,7 @@ jobs:
     - name: Install Yasm
       shell: powershell
       run: |
-        Invoke-WebRequest -Method Get -Uri http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe -OutFile ${{ env.MSYS }}\msys64\usr\bin\yasm.exe -UseBasicParsinge  
+        Invoke-WebRequest -Method Get -Uri http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe -OutFile ${{ env.MSYS }}msys64\usr\bin\yasm.exe -UseBasicParsinge  
   
     - name: Install Windows 8.1 SDK
       if: env.WINSYSTEM == '8.1'
