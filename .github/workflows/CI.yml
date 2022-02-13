@@ -39,9 +39,10 @@ jobs:
         python -c 'import sys; import polib; print(polib.escape(""Testing polib..."")); print(sys.version);' 
 
     - name: Setup Toolchain
+      shell: powershell
       run: |
-        curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z
-        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'D:\msys64\mingw64'                  
+        Invoke-WebRequest -Method Get -Uri http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z -OutFile update.7z -UseBasicParsing
+        Start-Process -Wait "C:\Program Files\7-Zip\7z.exe" -ArgumentList "x", "update.7z", "-aoa", "-o${{ env.MSYS }}msys64\mingw64"                
 
     - name: Set up Nasm
       uses: ilammy/setup-nasm@v1      
