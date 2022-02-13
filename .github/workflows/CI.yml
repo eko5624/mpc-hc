@@ -64,7 +64,7 @@ jobs:
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
-        ./build.bat x64 Release Packages
+        ./build.bat Build x86 Release Packages
 
 
     - name: Upload 7z archives (x64)
