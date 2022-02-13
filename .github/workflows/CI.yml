@@ -3,9 +3,6 @@ name: CI
 on:
   workflow_dispatch:
 
-env:
-  WINSYSTEM: '8.1'
-
 jobs:
   build:
     runs-on: windows-latest
@@ -42,7 +39,6 @@ jobs:
         mv 'D:\nasm-2.15.05\nasm.exe' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
     
     - name: Install Windows 8.1 SDK
-      if: env.WINSYSTEM == '8.1'
       shell: powershell
       run: |
         Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
@@ -62,7 +58,7 @@ jobs:
         MPCHC_MSYS: 'C:\msys64'
         MPCHC_MINGW64: 'C:\msys64\mingw64'
         MSYS2_PATH_TYPE: inherit
-        MPCHC_WINSDK_VER: ${{ env.WINSYSTEM }}
+        MPCHC_WINSDK_VER: 8.1
         MPCHC_PYTHON: 'C:\hostedtoolcache\windows\Python\3.7.9\x64'
         MPCHC_VS_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise'
         MPCHC_GIT: 'C:\Program Files\Git'
