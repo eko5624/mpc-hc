@@ -3,6 +3,9 @@ name: CI
 on:
   workflow_dispatch:
 
+env:
+    WINSYSTEM: '8.1'
+
 jobs:
   build:
     runs-on: windows-latest
@@ -39,6 +42,7 @@ jobs:
         destination: ${{env.VC_DIR}}
     
     - name: Install Windows 8.1 SDK
+      if: env.WINSYSTEM == '8.1'
       shell: powershell
       run: |
         Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
@@ -60,11 +64,12 @@ jobs:
         MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64'
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
-        MPCHC_WINSDK_VER: 8.1
+        MPCHC_WINSDK_VER: ${{ env.WINSYSTEM }}
         MPCHC_GIT: 'C:\Program Files\Git'
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
+        set PATH
         ./build.bat x64 Release Packages
 
     - name: Upload 7z archives (x64)
