@@ -1,8 +1,8 @@
 @ECHO OFF
 REM [Required for LAVFilters] MSYS2/MinGW paths:
 SET "MPCHC_MSYS=C:\MSYS64"
-SET "MPCHC_MINGW32=C:\MSYS64\mingw64"
-SET "MPCHC_MINGW64=C:\MSYS64\mingw64"
+SET "MPCHC_MINGW32=C:\msys64\mingw64"
+SET "MPCHC_MINGW64=C:\msys64\mingw64"
 SET "MSYSTEM=MINGW32"
 SET "MSYS2_PATH_TYPE=inherit"
 REM [Optional] Specify GIT location if it is not already set in %PATH%
