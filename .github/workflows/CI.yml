@@ -27,8 +27,6 @@ jobs:
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
-      env:
-        PATH: ${{env.CLEAN_PATH}} 
       run: |
         pip install polib 
     
