@@ -17404,6 +17404,16 @@ void CMainFrame::CloseMedia(bool bNextIsQueued/* = false*/)
         ASSERT(!m_bSettingUpMenus);
     }
 
+    // save playback position
+    if (GetLoadState() == MLS::LOADED) {
+        auto& s = AfxGetAppSettings();
+        if (m_bRememberFilePos && m_pMS) {
+            REFERENCE_TIME rtNow = 0;
+            m_pMS->GetCurrentPosition(&rtNow);
+            s.MRU.UpdateCurrentFilePosition(rtNow, true);
+        }
+    }
+
     // delay showing auto-hidden controls if new media is queued
     if (bNextIsQueued) {
         m_controls.DelayShowNotLoaded(true);
