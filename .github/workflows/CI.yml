@@ -6,9 +6,6 @@ on:
 jobs:
   build:
     runs-on: windows-2022
-    env:
-      VC_DIR: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
-      MSYS: 'D:\'
     steps:   
     - name: Install msys2
       uses: msys2/setup-msys2@v2
@@ -19,7 +16,7 @@ jobs:
     - name: Set ENV
       shell: cmd
       run: |
-        set Path=C:\hostedtoolcache\windows\Python\3.9.9\x64;${{ env.VC_DIR }};D:\msys64\mingw64\bin;D:\msys64\usr\bin;
+        set Path=C:\hostedtoolcache\windows\Python\3.9.9\x64;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC;D:\msys64\mingw64\bin;D:\msys64\usr\bin;
 
     - name: Install polib      
       run: |
@@ -64,8 +61,6 @@ jobs:
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: 8.1
-        MPCHC_PYTHON: 'C:\hostedtoolcache\windows\Python\3.7.9\x64'
-        MPCHC_VS_PATH: ${{ env.VC_DIR }}
         MPCHC_GIT: 'C:\Program Files\Git'
       shell: cmd
       run: |
