@@ -79,5 +79,5 @@ jobs:
     - name: Upload 7z archives (x64)
       uses: actions/upload-artifact@v2
       with:
-        name: MPC-HC-${{ steps.timestamp.outputs.date }} 
+        name: ${{ steps.timestamp.outputs.date }} 
         path: bin/mpc-hc_x64/*.7z   
