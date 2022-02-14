@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     env:
       VC_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
       MSYS: 'D:\'
@@ -14,8 +14,13 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         location: ${{ env.MSYS }}
-        install: base-devel autotools yasm     
-
+        install: base-devel autotools yasm 
+        
+    - name: Install Visual Studio 2019      
+      shell: powershell
+      run: |
+        choco install visualstudio2019enterprise
+        
     - name: Set path
       shell: cmd
       run: |
@@ -25,7 +30,7 @@ jobs:
    
     - name: Install polib      
       run: |
-        pip install polib 
+        pip install --upgrade polib 
     
     - name: Setup Toolchain
       run: |
@@ -67,8 +72,12 @@ jobs:
         set PATH
         ./build.bat x64 Release Packages
 
+    - name: Get current timestamp      
+      id: timestamp
+      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
+
     - name: Upload 7z archives (x64)
       uses: actions/upload-artifact@v2
       with:
-        name: MPC-HC-x64 
-        path: bin/*x64.7z   
+        name: MPC-HC-${{ steps.timestamp.outputs.date }} 
+        path: bin/mpc-hc_x64/*.7z   
