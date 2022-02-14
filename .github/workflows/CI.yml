@@ -75,4 +75,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.timestamp.outputs.date }} 
-        path: bin/mpc-hc_x64/*.7z   
+        path: bin/*x64.7z   
