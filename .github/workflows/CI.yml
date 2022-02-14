@@ -5,22 +5,22 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
     env:
-      VC_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
+      VC_DIR: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
       MSYS: 'D:\'
     steps:   
     - name: Install msys2
       uses: msys2/setup-msys2@v2
       with:
         location: ${{ env.MSYS }}
-        install: base-devel autotools yasm     
-
+        install: base-devel autotools yasm 
+        
     - name: Set path
       shell: cmd
       run: |
         set Path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set Path=%Path%C:\hostedtoolcache\windows\Python\3.7.9\x64;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set Path=%Path%C:\hostedtoolcache\windows\Python\3.9.9\x64;C:\Program Files\7-Zip;C:\Program Files\Git;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -64,14 +64,15 @@ jobs:
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
+        set PATH
         ./build.bat x64 Release Packages
-    
+   
     - name: Get current timestamp      
       id: timestamp
-      run: echo "::set-output name=date::$(date +%Y-%m-%d)"  
-  
+      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
+
     - name: Upload 7z archives (x64)
       uses: actions/upload-artifact@v2
       with:
-        name: MPC-HC-${{ steps.timestamp.outputs.date }} 
+        name: ${{ steps.timestamp.outputs.date }} 
         path: bin/*x64.7z   
