@@ -19,8 +19,8 @@ jobs:
     - name: Set path
       shell: cmd
       run: |
-        set Path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set Path=%Path%C:\hostedtoolcache\windows\Python\3.9.9\x64;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
+        set path=%Path%c:\hostedtoolcache\windows\Python\3.9.10\x64;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -40,8 +40,7 @@ jobs:
     - name: Install Windows 8.1 SDK
       shell: powershell
       run: |
-        Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
-        Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit"  
+        choco install windows-sdk-8.1 
   
     - name: Checkout
       uses: actions/checkout@v2
@@ -65,14 +64,26 @@ jobs:
       shell: cmd
       run: |
         set PATH
-        ./build.bat x64 Release Packages
+        ./build.bat Build x64 MPC-HC Release
    
     - name: Get current timestamp      
       id: timestamp
       run: echo "::set-output name=date::$(date +%Y-%m-%d)"
 
     - name: Upload 7z archives (x64)
-      uses: actions/upload-artifact@v2
+      run: |
+        mkdir -p bin/mpc-hc_x64/Shaders
+        mkdir -p bin/mpc-hc_x64/Shaders11
+        cp src/mpc-hc/res/shaders/dx9/*.hlsl bin/mpc-hc_x64/Shaders
+        cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11 
+        cp distrib/x64/D3DCompiler_47.dll bin/mpc-hc_x64
+        cp distrib/x64/D3DX9_43.dll bin/mpc-hc_x64
+        cp distrib/x64/MediaInfo.dll bin/mpc-hc_x64       
+    - uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.timestamp.outputs.date }} 
-        path: bin/*x64.7z   
+        name: Portable-${{ steps.timestamp.outputs.date }}
+        path: |
+          bin/mpc-hc_x64/
+          !bin/mpc-hc_x64/*.pdb
+          !bin/mpc-hc_x64/*.lib
+          !bin/mpc-hc_x64/*.exp 
