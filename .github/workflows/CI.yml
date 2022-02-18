@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2019
+    env:
+      VC_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
+      MSYS: 'D:\'
+    steps:   
+    - name: Install msys2
+      uses: msys2/setup-msys2@v2
+      with:
+        location: ${{ env.MSYS }}
+        install: base-devel autotools yasm     
+
+    - name: Set path
+      shell: cmd
+      run: |
+        set path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
+        set path=%path%c:\hostedtoolcache\windows\python\3.7.9\x64;C:\Program Files (x86)\Inno Setup 6;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        echo CLEAN_PATH=%path% > %GITHUB_ENV%
+   
+    - name: Install polib      
+      run: |
+        pip install --upgrade polib 
+    
+    - name: Setup Toolchain
+      run: |
+        curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z             
+        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'D:\msys64\mingw64'
+    
+    - name: Setup Nasm
+      uses: ilammy/setup-nasm@v1      
+      with:
+        destination: ${{env.VC_DIR}} 
+  
+    - name: Install Windows 8.1 SDK
+      shell: powershell
+      run: |
+        choco install windows-sdk-8.1 
+ 
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0    
+        submodules: true
+      
+    - name: Checkout modules
+      run: git submodule update --init --recursive         
+
+    - name: Get current timestamp      
+      id: timestamp
+      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
+
+    - name: Build the package (x64)
+      env:
+        MPCHC_MSYS: ${{ env.MSYS }}msys64
+        MPCHC_MINGW32: ${{ env.MSYS }}msys64\mingw64
+        MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
+        MSYSTEM: MINGW32
+        MSYS2_PATH_TYPE: inherit
+        MPCHC_WINSDK_VER: 8.1
+        MPCHC_GIT: 'C:\Program Files\Git'
+        PATH: ${{env.CLEAN_PATH}}
+      shell: cmd
+      run: |
+        ./build.bat Build x64 MPC-HC Release 7z
+    
+    - name: Upload 7z archives (x64)
+      run: |
+        mkdir -p bin/mpc-hc_x64/Shaders
+        mkdir -p bin/mpc-hc_x64/Shaders11
+        cp distrib/x64/D3DCompiler_47.dll bin/mpc-hc_x64
+        cp distrib/x64/D3DX9_43.dll bin/mpc-hc_x64
+        cp distrib/x64/MediaInfo.dll bin/mpc-hc_x64
+        cp src/mpc-hc/res/shaders/dx9/*.hlsl bin/mpc-hc_x64/Shaders
+        cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11        
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Portable-${{ steps.timestamp.outputs.date }}
+        path: |
+          bin/mpc-hc_x64/
+          !bin/mpc-hc_x64/*.pdb
+          !bin/mpc-hc_x64/*.lib
+          !bin/mpc-hc_x64/*.exp
+    - name: Upload Installer (x64)
+      uses: actions/upload-artifact@v2
+      with: 
+        name: Installer-${{ steps.timestamp.outputs.date }}
+        path: bin/*x64.exe
