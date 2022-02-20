@@ -51,10 +51,6 @@ jobs:
     - name: Checkout modules
       run: git submodule update --init --recursive         
 
-    - name: Get current timestamp      
-      id: timestamp
-      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
-
     - name: Build the package (x64)
       env:
         MPCHC_MSYS: ${{ env.MSYS }}msys64
@@ -67,9 +63,13 @@ jobs:
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
-        ./build.bat Build x64 MPC-HC Release 7z
-    
-    - name: Upload 7z archives (x64)
+        ./build.bat Build x64 MPC-HC Release 7z        
+
+    - name: Get current timestamp      
+      id: timestamp
+      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
+  
+    - name: Copy dlls
       run: |
         mkdir -p bin/mpc-hc_x64/Shaders
         mkdir -p bin/mpc-hc_x64/Shaders11
@@ -78,7 +78,9 @@ jobs:
         cp distrib/x64/MediaInfo.dll bin/mpc-hc_x64
         cp src/mpc-hc/res/shaders/dx9/*.hlsl bin/mpc-hc_x64/Shaders
         cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11        
-    - uses: actions/upload-artifact@v2
+    
+    - name: Upload 7z archives (x64)
+      uses: actions/upload-artifact@v2
       with:
         name: Portable-${{ steps.timestamp.outputs.date }}
         path: |
@@ -86,6 +88,7 @@ jobs:
           !bin/mpc-hc_x64/*.pdb
           !bin/mpc-hc_x64/*.lib
           !bin/mpc-hc_x64/*.exp
+    
     - name: Upload Installer (x64)
       uses: actions/upload-artifact@v2
       with: 
