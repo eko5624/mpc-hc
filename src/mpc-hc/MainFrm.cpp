@@ -12584,9 +12584,10 @@ void CMainFrame::OpenFile(OpenFileData* pOFD)
                 SHAddToRecentDocs(SHARD_PATH, fn);
             }
             else {
-                CRecentFileList* pMRU = &s.MRUDub;
-                pMRU->Add(fn);
-                SHAddToRecentDocs(SHARD_PATH, fn);
+                CRecentFileList* pMRUDub = &s.MRUDub;
+                pMRUDub->ReadList();
+                pMRUDub->Add(fn);
+                pMRUDub->WriteList();
             }
         }
 
@@ -13942,10 +13943,10 @@ int CMainFrame::SetupSubtitleStreams()
                         rating += 4 + 2;
                     }
                     if (name.Find(_T("[forced]")) != -1) {
-                        rating += 4;
+                        rating += 2;
                     }
                     if (name.Find(_T("[default]")) != -1) {
-                        rating += 2;
+                        rating += 4;
                     }
                 }
 
@@ -15689,7 +15690,7 @@ void CMainFrame::SetupRecentFilesSubMenu()
         VERIFY(subMenu.AppendMenu(MF_STRING | MF_ENABLED, ID_RECENT_FILES_CLEAR, ResStr(IDS_RECENT_FILES_CLEAR)));
         VERIFY(subMenu.AppendMenu(MF_SEPARATOR | MF_ENABLED));
         UINT id = ID_RECENT_FILE_START;
-        for (int i = 0; i < MRU.GetSize(); i++) {
+        for (int i = 0; i < 50 && i < MRU.GetSize(); i++) {
             UINT flags = MF_BYCOMMAND | MF_STRING | MF_ENABLED;
             if (!MRU[i].fns.GetHead().IsEmpty()) {
                 CString p = MRU[i].cue.IsEmpty() ? MRU[i].fns.GetHead() : MRU[i].cue;
