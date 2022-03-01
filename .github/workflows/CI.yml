@@ -30,12 +30,12 @@ jobs:
     - name: Setup Toolchain
       run: |
         curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z             
-        &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'D:\msys64\mingw64'
+        &'C:\Program Files\7-Zip\7z.exe' x -y mingw*.7z -o'D:\msys64\mingw64'
         
     - name: Install Nasm
       run: |
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip 
-        &'C:\Program Files\7-Zip\7z.exe' x nasm-2.15.05-win64.7z -o'D:'
+        &'C:\Program Files\7-Zip\7z.exe' x nasm*.7z -o'D:\'
         mv D:/nasm-2.15.05/nasm.exe "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC"        
   
     - name: Install Windows 8.1 SDK
