@@ -31,11 +31,11 @@ jobs:
       run: |
         curl -OL http://files.1f0.de/mingw/mingw-w64-gcc-11.2-stable-r36.7z             
         &'C:\Program Files\7-Zip\7z.exe' x -y *.7z -o'D:\msys64\mingw64'
-    
-    - name: Setup Nasm
-      uses: ilammy/setup-nasm@v1      
-      with:
-        destination: ${{env.VC_DIR}} 
+        
+    - name: Install Nasm
+      run: |
+        curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip 
+        mv nasm.exe "C:\Program Files (x86)/Microsoft Visual Studio/2019\Enterprise/VC"        
   
     - name: Install Windows 8.1 SDK
       shell: powershell
