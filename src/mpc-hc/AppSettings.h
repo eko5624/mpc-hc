@@ -436,6 +436,7 @@ public:
         hash = r.hash;
         cue = r.cue;
         title = r.title;
+        lastOpened = r.lastOpened;
         filePosition = r.filePosition;
         DVDPosition = r.DVDPosition;
         fns.RemoveAll();
@@ -449,15 +450,13 @@ public:
 
     CStringW hash;
     CString title;
+    CString lastOpened;
     CAtlList<CString> fns;
     CString cue;
     CAtlList<CString> subs;
     REFERENCE_TIME filePosition=0;
     DVD_POSITION DVDPosition = {};
 
-    BOOL operator==(RecentFileEntry c) {
-        return this->fns.GetHead() == c.fns.GetHead() && cue == c.cue;
-    }
     void operator=(const RecentFileEntry &r) {
         InitEntry(r);
     }
@@ -482,12 +481,17 @@ class CAppSettings
     class CRecentFileListWithMoreInfo
     {
     public:
-        CRecentFileListWithMoreInfo(LPCTSTR lpszSection, int nSize) : m_section(lpszSection), m_maxSize(nSize){}
+        CRecentFileListWithMoreInfo(LPCTSTR lpszSection, int nSize)
+        : m_section(lpszSection)
+        , m_maxSize(nSize)
+        , current_rfe_hash(L"")
+        {}
 
         CAtlArray<RecentFileEntry> rfe_array;
         size_t m_maxSize;
         LPCTSTR m_section;
         REFERENCE_TIME persistedFilePosition = 0;
+        CString current_rfe_hash;
 
         int GetSize() {
             return (int)rfe_array.GetCount();
@@ -501,7 +505,8 @@ class CAppSettings
         void Remove(size_t nIndex);
         void Add(LPCTSTR fn);
         void Add(LPCTSTR fn, ULONGLONG llDVDGuid);
-        void Add(RecentFileEntry r);
+        void Add(RecentFileEntry r, bool current_open = false);
+        bool GetCurrentIndex(size_t& idx);
         void UpdateCurrentFilePosition(REFERENCE_TIME time, bool forcePersist = false);
         REFERENCE_TIME GetCurrentFilePosition();
         void UpdateCurrentDVDTimecode(DVD_HMSF_TIMECODE *time);
@@ -512,7 +517,7 @@ class CAppSettings
         void WriteCurrentEntry();
         void ReadMediaHistory();
         void WriteMediaHistoryEntry(RecentFileEntry& r, bool updateLastOpened = false);
-        void SaveMediaHistory(bool updateLastOpened = false);
+        void SaveMediaHistory();
         void ReadLegacyMediaHistory(std::map<CStringW, size_t> &filenameToIndex);
         void ReadLegacyMediaPosition(std::map<CStringW, size_t> &filenameToIndex);
         bool LoadMediaHistoryEntryFN(CStringW fn, RecentFileEntry& r);
@@ -909,6 +914,9 @@ public:
     bool bUseSubsFromYDL;
     CString sYDLSubsPreference;
     bool bUseAutomaticCaptions;
+
+    CStringW lastQuickOpenPath;
+    CStringW lastSaveImagePath;
 
 private:
     struct FilterKey {
