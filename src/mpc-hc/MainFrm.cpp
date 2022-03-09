@@ -107,6 +107,8 @@
 #include "CMPCThemeDockBar.h"
 #include "CMPCThemeMiniDockFrameWnd.h"
 
+#include "FileHandle.h"
+
 #include <dwmapi.h>
 #undef SubclassWindow
 
@@ -4294,7 +4296,7 @@ void CMainFrame::OnFileOpenQuick()
         return;
     }
 
-    const CAppSettings& s = AfxGetAppSettings();
+    CAppSettings& s = AfxGetAppSettings();
     CString filter;
     CAtlArray<CString> mask;
     s.m_Formats.GetFilter(filter, mask);
@@ -4305,9 +4307,13 @@ void CMainFrame::OnFileOpenQuick()
     }
 
     COpenFileDlg fd(mask, true, nullptr, nullptr, dwFlags, filter, GetModalParent());
+    if (s.lastQuickOpenPath.GetLength()) {
+        fd.m_ofn.lpstrInitialDir = s.lastQuickOpenPath;
+    }
     if (fd.DoModal() != IDOK) {
         return;
     }
+    s.lastQuickOpenPath = GetFolderOnly(fd.m_ofn.lpstrFile);
 
     CAtlList<CString> fns;
 
@@ -5857,9 +5863,13 @@ void CMainFrame::OnFileSaveImage()
         fd.m_pOFN->nFilterIndex = 3;
     }
 
+    if (s.lastSaveImagePath.GetLength()) {
+        fd.m_ofn.lpstrInitialDir = s.lastSaveImagePath;
+    }
     if (fd.DoModal() != IDOK) {
         return;
     }
+    s.lastSaveImagePath = GetFolderOnly(fd.m_ofn.lpstrFile);
 
     if (fd.m_pOFN->nFilterIndex == 1) {
         s.strSnapshotExt = _T(".bmp");
@@ -7981,7 +7991,7 @@ void CMainFrame::OnPlayPlay()
             if (m_fEndOfStream) {
                 SendMessage(WM_COMMAND, ID_PLAY_STOP);
             } else {
-                if (!m_fAudioOnly && m_dwLastPause && m_wndSeekBar.HasDuration()) {
+                if (!m_fAudioOnly && m_dwLastPause && m_wndSeekBar.HasDuration() && s.iReloadAfterLongPause >= 0) {
                     // after long pause or hibernation, reload video file to avoid playback issues on some systems (with buggy drivers)
                     // in case of hibernate, m_dwLastPause equals 1
                     if (m_dwLastPause == 1 || s.iReloadAfterLongPause > 0 && (GetTickCount64() - m_dwLastPause >= s.iReloadAfterLongPause * 60 * 1000)) {
@@ -12497,6 +12507,7 @@ void CMainFrame::OpenFile(OpenFileData* pOFD)
                 }
 
                 if (FAILED(previewHR)) {
+                    m_bUseSeekPreview = false;
                     if (m_pGB_preview) {
                         m_pMFVP_preview = nullptr;
                         m_pMFVDC_preview = nullptr;
@@ -12518,7 +12529,6 @@ void CMainFrame::OpenFile(OpenFileData* pOFD)
                         m_pGB_preview.Release();
                         m_pGB_preview = nullptr;
                     }
-                    m_bUseSeekPreview = false;
                 }
             }
         }
@@ -12579,7 +12589,7 @@ void CMainFrame::OpenFile(OpenFileData* pOFD)
                     r.fns.AddHead(fn);
                 }
 
-                pMRU->Add(r);
+                pMRU->Add(r, true);
             }
             else {
                 CRecentFileList* pMRUDub = &s.MRUDub;
@@ -15681,7 +15691,7 @@ void CMainFrame::SetupRecentFilesSubMenu()
         VERIFY(subMenu.AppendMenu(MF_STRING | MF_ENABLED, ID_RECENT_FILES_CLEAR, ResStr(IDS_RECENT_FILES_CLEAR)));
         VERIFY(subMenu.AppendMenu(MF_SEPARATOR | MF_ENABLED));
         UINT id = ID_RECENT_FILE_START;
-        for (int i = 0; i < 50 && i < MRU.GetSize(); i++) {
+        for (int i = 0; i < MRU.GetSize(); i++) {
             UINT flags = MF_BYCOMMAND | MF_STRING | MF_ENABLED;
             if (!MRU[i].fns.IsEmpty() && !MRU[i].fns.GetHead().IsEmpty()) {
                 CString p = MRU[i].cue.IsEmpty() ? MRU[i].fns.GetHead() : MRU[i].cue;
@@ -16196,7 +16206,7 @@ bool CMainFrame::SetSubtitle(int i, bool bIsOffset /*= false*/, bool bDisplayMes
                 dwFlags = 0;
             }
             if (lcid && AfxGetAppSettings().fEnableSubtitles) {
-                GetLocaleString(lcid, LOCALE_SISO639LANGNAME2, currentSubLang);
+                currentSubLang = ISOLang::GetLocaleStringCompat(lcid);
             } else {
                 currentSubLang.Empty();
             }
@@ -16218,7 +16228,7 @@ bool CMainFrame::SetSubtitle(int i, bool bIsOffset /*= false*/, bool bDisplayMes
             LCID lcid = 0;
             pSubInput->pSubStream->GetStreamInfo(0, &pName, &lcid);
             if (lcid && AfxGetAppSettings().fEnableSubtitles) {
-                GetLocaleString(lcid, LOCALE_SISO639LANGNAME2, currentSubLang);
+                currentSubLang = ISOLang::GetLocaleStringCompat(lcid);
             } else {
                 currentSubLang.Empty();
             }
@@ -17462,6 +17472,7 @@ void CMainFrame::CloseMedia(bool bNextIsQueued/* = false*/)
     TRACE(_T("CMainFrame::CloseMedia\n"));
 
     m_dwLastPause = 0;
+    m_bUseSeekPreview = false;
 
     if (GetLoadState() == MLS::CLOSING || GetLoadState() == MLS::CLOSED) {
         // double close, should be prevented
@@ -20105,7 +20116,7 @@ bool CMainFrame::ProcessYoutubeDLURL(CString url, bool append, bool replace)
         else if (streams.GetCount() == 1) {
             r.title = f_title;
         }
-        mru->Add(r);
+        mru->Add(r, true);
     }
 
     if (!append && (!replace || !m_wndPlaylistBar.GetCur())) {

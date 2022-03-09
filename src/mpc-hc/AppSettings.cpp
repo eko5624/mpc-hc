@@ -245,8 +245,10 @@ CAppSettings::CAppSettings()
     , bUseAutomaticCaptions(false)
     , bLockNoPause(false)
     , bUseSMTC(false)
-    , iReloadAfterLongPause(30)
+    , iReloadAfterLongPause(-1)
     , bOpenRecPanelWhenOpeningDevice(true)
+    , lastQuickOpenPath(L"")
+    , lastSaveImagePath(L"")
 {
     // Internal source filter
 #if INTERNAL_SOURCEFILTER_CDDA
@@ -1202,6 +1204,9 @@ void CAppSettings::SaveSettings(bool write_full_history /* = false */)
     pApp->WriteProfileString(IDS_R_SETTINGS, IDS_RS_YDL_SUBS_PREFERENCE, sYDLSubsPreference);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_USE_AUTOMATIC_CAPTIONS, bUseAutomaticCaptions);
 
+    pApp->WriteProfileString(IDS_R_SETTINGS, IDS_LAST_QUICKOPEN_PATH, lastQuickOpenPath);
+    pApp->WriteProfileString(IDS_R_SETTINGS, IDS_LAST_SAVEIMAGE_PATH, lastSaveImagePath);
+
     if (fKeepHistory) {
         if (write_full_history) {
             MRU.SaveMediaHistory();
@@ -1992,7 +1997,7 @@ void CAppSettings::LoadSettings()
 
     bLockNoPause = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_LOCK_NOPAUSE, FALSE);
     bUseSMTC = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_USE_SMTC, FALSE);
-    iReloadAfterLongPause = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_RELOAD_AFTER_LONG_PAUSE, 30);
+    iReloadAfterLongPause = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_RELOAD_AFTER_LONG_PAUSE, -1);
     bOpenRecPanelWhenOpeningDevice = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_OPEN_REC_PANEL_WHEN_OPENING_DEVICE, TRUE);
 
     if (fLaunchfullscreen && slFiles.GetCount() > 0) {
@@ -2032,6 +2037,9 @@ void CAppSettings::LoadSettings()
     bUseTitleInRecentFileList = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_USE_TITLE_IN_RECENT_FILE_LIST, TRUE);
     sYDLSubsPreference = pApp->GetProfileString(IDS_R_SETTINGS, IDS_RS_YDL_SUBS_PREFERENCE, _T(""));
     bUseAutomaticCaptions = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_USE_AUTOMATIC_CAPTIONS, FALSE);
+
+    lastQuickOpenPath = pApp->GetProfileString(IDS_R_SETTINGS, IDS_LAST_QUICKOPEN_PATH, L"");
+    lastSaveImagePath = pApp->GetProfileString(IDS_R_SETTINGS, IDS_LAST_SAVEIMAGE_PATH, L"");
 
     // GUI theme can be used now
     static_cast<CMPlayerCApp*>(AfxGetApp())->m_bThemeLoaded = bMPCTheme;
@@ -2699,34 +2707,49 @@ void CAppSettings::CRecentFileListWithMoreInfo::Remove(size_t nIndex) {
 void CAppSettings::CRecentFileListWithMoreInfo::Add(LPCTSTR fn) {
     RecentFileEntry r;
     LoadMediaHistoryEntryFN(fn, r);
-    Add(r);
+    Add(r, true);
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::Add(LPCTSTR fn, ULONGLONG llDVDGuid) {
     RecentFileEntry r;
     LoadMediaHistoryEntryDVD(llDVDGuid, fn, r);
-    Add(r);
+    Add(r, true);
+}
+
+bool CAppSettings::CRecentFileListWithMoreInfo::GetCurrentIndex(size_t& idx) {
+    ASSERT(!current_rfe_hash.IsEmpty());
+    for (int i = 0; i < rfe_array.GetCount(); i++) {
+        if (rfe_array[i].hash == current_rfe_hash) {
+            idx = i;
+            return true;
+        }
+    }
+    ASSERT(false);
+    return false;
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::UpdateCurrentFilePosition(REFERENCE_TIME time, bool forcePersist /* = false */) {
-    if (rfe_array.GetCount()) {
-        rfe_array[0].filePosition = time;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        rfe_array[idx].filePosition = time;
         if (forcePersist || std::abs(persistedFilePosition - time) > 300000000) {
-            WriteCurrentEntry();
+            WriteMediaHistoryEntry(rfe_array[idx]);
         }
     }
 }
 
 REFERENCE_TIME CAppSettings::CRecentFileListWithMoreInfo::GetCurrentFilePosition() {
-    if (rfe_array.GetCount()) {
-        return rfe_array[0].filePosition;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        return rfe_array[idx].filePosition;
     }
     return 0;
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::UpdateCurrentDVDTimecode(DVD_HMSF_TIMECODE* time) {
-    if (rfe_array.GetCount()) {
-        DVD_POSITION* dvdPosition = &rfe_array[0].DVDPosition;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        DVD_POSITION* dvdPosition = &rfe_array[idx].DVDPosition;
         if (dvdPosition) {
             memcpy(&dvdPosition->timecode, (void*)time, sizeof(DVD_HMSF_TIMECODE));
         }
@@ -2734,8 +2757,9 @@ void CAppSettings::CRecentFileListWithMoreInfo::UpdateCurrentDVDTimecode(DVD_HMS
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::UpdateCurrentDVDTitle(DWORD title) {
-    if (rfe_array.GetCount()) {
-        DVD_POSITION* dvdPosition = &rfe_array[0].DVDPosition;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        DVD_POSITION* dvdPosition = &rfe_array[idx].DVDPosition;
         if (dvdPosition) {
             dvdPosition->lTitle = title;
         }
@@ -2743,41 +2767,46 @@ void CAppSettings::CRecentFileListWithMoreInfo::UpdateCurrentDVDTitle(DWORD titl
 }
 
 DVD_POSITION CAppSettings::CRecentFileListWithMoreInfo::GetCurrentDVDPosition() {
-    if (rfe_array.GetCount()) {
-        return rfe_array[0].DVDPosition;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        return rfe_array[idx].DVDPosition;
     }
     return DVD_POSITION();
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::AddSubToCurrent(CStringW subpath) {
-    if (rfe_array.GetCount()) {
-        bool found = rfe_array[0].subs.Find(subpath);
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        bool found = rfe_array[idx].subs.Find(subpath);
         if (!found) {
-            rfe_array[0].subs.AddHead(subpath);
-            WriteMediaHistoryEntry(rfe_array[0]);
+            rfe_array[idx].subs.AddHead(subpath);
+            WriteMediaHistoryEntry(rfe_array[idx]);
         }
     }
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::SetCurrentTitle(CStringW title) {
-    if (rfe_array.GetCount()) {
-        rfe_array[0].title = title;
+    size_t idx;
+    if (GetCurrentIndex(idx)) {
+        rfe_array[idx].title = title;
     }
 }
 
 void CAppSettings::CRecentFileListWithMoreInfo::WriteCurrentEntry() {
-    if (rfe_array.GetCount()) {
-        WriteMediaHistoryEntry(rfe_array[0]);
+    size_t idx;
+    if (!current_rfe_hash.IsEmpty() && GetCurrentIndex(idx)) {
+        WriteMediaHistoryEntry(rfe_array[idx]);
     }
 }
 
-void CAppSettings::CRecentFileListWithMoreInfo::Add(RecentFileEntry r) {
+void CAppSettings::CRecentFileListWithMoreInfo::Add(RecentFileEntry r, bool current_open) {
     if (r.fns.GetCount() < 1) {
         return;
     }
     if (CString(r.fns.GetHead()).MakeLower().Find(_T("@device:")) >= 0) {
         return;
     }
+
     if (r.hash.IsEmpty()) {
         r.hash = getRFEHash(r);
     }
@@ -2790,6 +2819,9 @@ void CAppSettings::CRecentFileListWithMoreInfo::Add(RecentFileEntry r) {
     WriteMediaHistoryEntry(r, true);
 
     rfe_array.InsertAt(0, r);
+    if (current_open) {
+        current_rfe_hash = r.hash;
+    }
 
     // purge obsolete entry
     if (rfe_array.GetCount() > m_maxSize) {
