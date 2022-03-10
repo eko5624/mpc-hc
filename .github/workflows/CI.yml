@@ -76,18 +76,18 @@ jobs:
         cp src/mpc-hc/res/shaders/dx9/*.hlsl bin/mpc-hc_x64/Shaders
         cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11 
         rm bin/mpc-hc_x64/*.pdb
-        rm bin/mpc-hc_x64/*.pdb
+        rm bin/mpc-hc_x64/*.lib
         rm bin/mpc-hc_x64/*.exp
         rm bin/mpc-hc_x64/LAVFilters64/*.pdb
         $date = Get-Date -Format "yyyy-MM-dd"
-        7z a All-in-One-mpc-hc-${date}.7z bin/*
+        7z a All-in-One-mpc-hc-${date}.7z bin/mpc-hc_x64/
           
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:       
         tag_name: mpc-hc-${{ steps.timestamp.outputs.date }}
         name: ${{ steps.timestamp.outputs.date }}
-        body: All-in-One = MPC-HC*.x64.7z+Shaders+Shaders11+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
+        body: All-in-One = MPC-HC*.x64.7z+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
         files: |
           All*.7z
           bin/*x64.7z   
