@@ -54,7 +54,6 @@ jobs:
         MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
-        MPCHC_WINSDK_VER: 10
         MPCHC_GIT: 'C:\Program Files\Git\bin'
         MPCHC_VS_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\'
         PATH: ${{env.CLEAN_PATH}}
@@ -66,7 +65,7 @@ jobs:
       id: timestamp
       run: echo "::set-output name=date::$(date +%Y-%m-%d)"
   
-    - name: Copy dlls
+    - name: Zip Packages
       run: |
         mkdir -p bin/mpc-hc_x64/Shaders
         mkdir -p bin/mpc-hc_x64/Shaders11
@@ -74,20 +73,21 @@ jobs:
         cp distrib/x64/D3DX9_43.dll bin/mpc-hc_x64
         cp distrib/x64/MediaInfo.dll bin/mpc-hc_x64
         cp src/mpc-hc/res/shaders/dx9/*.hlsl bin/mpc-hc_x64/Shaders
-        cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11        
-    
-    - name: Upload 7z archives (x64)
-      uses: actions/upload-artifact@v2
-      with:
-        name: Portable-${{ steps.timestamp.outputs.date }}
-        path: |
-          bin/mpc-hc_x64/
-          !bin/mpc-hc_x64/*.pdb
-          !bin/mpc-hc_x64/*.lib
-          !bin/mpc-hc_x64/*.exp
-    
-    - name: Upload Installer (x64)
-      uses: actions/upload-artifact@v2
-      with: 
-        name: Installer-${{ steps.timestamp.outputs.date }}
-        path: bin/*x64.exe
+        cp src/mpc-hc/res/shaders/dx11/*.hlsl bin/mpc-hc_x64/Shaders11 
+        rm -rf bin/mpc-hc_x64/*.pdb
+        rm -rf bin/mpc-hc_x64/*.pdb
+        rm -rf bin/mpc-hc_x64/*.exp
+        rm -rf bin/mpc-hc_x64/LAVFilters64/*.pdb
+        $date = Get-Date -Format "yyyy-MM-dd"
+        7z a All-in-One-mpc-hc-${date}.7z bin/*
+          
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:       
+        tag_name: mpc-hc-${{ steps.timestamp.outputs.date }}
+        name: ${{ steps.timestamp.outputs.date }}
+        files: |
+          All*.7z
+          bin/*x64.7z   
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
