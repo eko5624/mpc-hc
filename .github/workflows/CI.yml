@@ -20,7 +20,7 @@ jobs:
       shell: cmd
       run: |
         set Path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set Path=%Path%C:\hostedtoolcache\windows\Python\3.9.10\x64;C:\Program Files\7-Zip;C:\Program Files\Git\cmd;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set Path=%Path%C:\hostedtoolcache\windows\Python\3.9.10\x64;C:\Program Files\7-Zip;C:\Program Files\Git\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -61,7 +61,8 @@ jobs:
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
         MPCHC_WINSDK_VER: 10
-        MPCHC_GIT: 'C:\Program Files\Git\cmd'
+        MPCHC_GIT: 'C:\Program Files\Git\bin'
+        MPCHC_VS_PATH: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\'
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
