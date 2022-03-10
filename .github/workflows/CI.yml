@@ -80,12 +80,12 @@ jobs:
         rm bin/mpc-hc_x64/*.exp
         rm bin/mpc-hc_x64/LAVFilters64/*.pdb
         $date = Get-Date -Format "yyyy-MM-dd"
-        7z a All-in-One-mpc-hc-${date}.7z bin/mpc-hc_x64/
+        7z a All-in-One-mpc-hc-${date}.7z bin/mpc-hc_x64/*
           
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:       
-        tag_name: mpc-hc-${{ steps.timestamp.outputs.date }}
+        tag_name: MPC-HC-${{ steps.timestamp.outputs.date }}
         name: ${{ steps.timestamp.outputs.date }}
         body: All-in-One = MPC-HC*.x64.7z+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
         files: |
