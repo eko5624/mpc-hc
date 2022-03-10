@@ -19,8 +19,8 @@ jobs:
     - name: Set path
       shell: cmd
       run: |
-        set path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set path=%path%C:\hostedtoolcache\windows\Python\3.9.10\x64;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set Path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
+        set Path=%Path%C:\hostedtoolcache\windows\Python\3.9.10\x64;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -36,6 +36,11 @@ jobs:
       uses: ilammy/setup-nasm@v1      
       with:
         destination: ${{env.VC_DIR}} 
+        
+    - name: Install Microsoft Visual C++ 2010 redistributable packages
+      shell: powershell
+      run: |
+        choco install vcredist2010        
   
     - name: Install Windows 8.1 SDK
       shell: powershell
