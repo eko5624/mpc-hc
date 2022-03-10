@@ -35,17 +35,7 @@ jobs:
     - name: Set up Nasm
       uses: ilammy/setup-nasm@v1      
       with:
-        destination: ${{env.VC_DIR}} 
-        
-    - name: Install Microsoft Visual C++ 2010 redistributable packages
-      shell: powershell
-      run: |
-        choco install vcredist2010        
-  
-    - name: Install Windows 8.1 SDK
-      shell: powershell
-      run: |
-        choco install windows-sdk-8.1 
+        destination: ${{env.VC_DIR}}        
   
     - name: Checkout
       uses: actions/checkout@v3
@@ -63,7 +53,6 @@ jobs:
         MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
-        MPCHC_WINSDK_VER: 8.1
         MPCHC_GIT: 'C:\Program Files\Git\cmd'
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
