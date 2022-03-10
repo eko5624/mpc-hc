@@ -86,6 +86,7 @@ jobs:
       with:       
         tag_name: mpc-hc-${{ steps.timestamp.outputs.date }}
         name: ${{ steps.timestamp.outputs.date }}
+        body: All-in-One = MPC-HC*.x64.7z+Shaders+Shaders11+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
         files: |
           All*.7z
           bin/*x64.7z   
