@@ -46,6 +46,11 @@ jobs:
     - name: Checkout modules
       run: git submodule update --init --recursive         
 
+    - name: Retarget solution      
+      shell: cmd
+      run: |
+        msbuild src/thirdparty/LAVFilters/LAVFilters.vcxproj /p:PlatformToolset=v143
+
     - name: Build the package (x64)
       env:
         MPCHC_MSYS: ${{ env.MSYS }}msys64
