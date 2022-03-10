@@ -20,7 +20,7 @@ jobs:
       shell: cmd
       run: |
         set path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set path=%path%C:\hostedtoolcache\windows\python\3.7.9\x64;C:\Program Files (x86)\Inno Setup 6;C:\Program Files\7-Zip;C:\Program Files\Git;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set path=%path%C:\hostedtoolcache\windows\python\3.7.9\x64;C:\Program Files (x86)\Inno Setup 6;C:\Program Files\7-Zip;C:\Program Files\Git\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -36,12 +36,7 @@ jobs:
       run: |
         curl -OL https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip 
         &'C:\Program Files\7-Zip\7z.exe' x nasm*.zip -o'D:' 
-        mv D:/nasm-2.15.05/nasm.exe "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC"        
-  
-    - name: Install Windows 8.1 SDK
-      shell: powershell
-      run: |
-        choco install windows-sdk-8.1 
+        mv D:/nasm-2.15.05/nasm.exe 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC'        
  
     - name: Checkout
       uses: actions/checkout@v3
@@ -59,8 +54,9 @@ jobs:
         MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
-        MPCHC_WINSDK_VER: 8.1
-        MPCHC_GIT: 'C:\Program Files\Git'
+        MPCHC_WINSDK_VER: 10
+        MPCHC_GIT: 'C:\Program Files\Git\bin'
+        MPCHC_VS_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\'
         PATH: ${{env.CLEAN_PATH}}
       shell: cmd
       run: |
