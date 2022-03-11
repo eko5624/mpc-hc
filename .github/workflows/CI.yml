@@ -69,13 +69,21 @@ jobs:
     - name: Zip Packages
       run: |
         $date = Get-Date -Format "yyyy-MM-dd"
-        7z u -t7z bin/*x64.7z distrib/x64/D3DCompiler_47.dll distrib/x64/D3DX9_43.dll distrib/x64/MediaInfo.dll
+        mkdir All-in-One
+        cp distrib/x64/D3DCompiler_47.dll All-in-One
+        cp distrib/x64/D3DX9_43.dll All-in-One
+        cp distrib/x64/MediaInfo.dll All-in-One        
+        7z x bin/*x64.7z -o'All-in-One'
+        7z a All-in-One-${date}.7z All-in-One/*
           
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:       
         tag_name: MPC-HC-${{ steps.timestamp.outputs.date }}
         name: ${{ steps.timestamp.outputs.date }}
-        files: bin/*x64.7z   
+        body: All-in-One = MPC-HC.x64.7z+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
+        files: |
+          All*.7z
+          bin/*x64.7z    
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
