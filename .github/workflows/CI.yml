@@ -76,6 +76,6 @@ jobs:
       with:       
         tag_name: MPC-HC-${{ steps.timestamp.outputs.date }}
         name: MPC-HC-DEV
-        files: bin/*x64.7z   
+        files: *x64.7z   
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
