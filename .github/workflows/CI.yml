@@ -69,13 +69,13 @@ jobs:
     - name: Zip Packages
       run: |
         $date = Get-Date -Format "yyyy-MM-dd"
-        7z a -t7z bin/*x64.7z distrib/x64/D3DCompiler_47.dll distrib/x64/D3DX9_43.dll distrib/x64/MediaInfo.dll
+        7z u -t7z bin/*x64.7z distrib/x64/D3DCompiler_47.dll distrib/x64/D3DX9_43.dll distrib/x64/MediaInfo.dll
           
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:       
         tag_name: MPC-HC-${{ steps.timestamp.outputs.date }}
-        name: MPC-HC-DEV
-        files: *x64.7z   
+        name: ${{ steps.timestamp.outputs.date }}
+        files: bin/*x64.7z   
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
