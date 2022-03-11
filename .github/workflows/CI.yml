@@ -69,7 +69,7 @@ jobs:
     - name: Zip Packages
       run: |
         $date = Get-Date -Format "yyyy-MM-dd"
-        7z a -t7z bin/*x64.7z -r distrib/x64/D3DCompiler_47.dll distrib/x64/D3DX9_43.dll distrib/x64/MediaInfo.dll
+        7z a -t7z bin/*x64.7z distrib/x64/D3DCompiler_47.dll distrib/x64/D3DX9_43.dll distrib/x64/MediaInfo.dll
           
     - name: Create Release
       uses: softprops/action-gh-release@v1
