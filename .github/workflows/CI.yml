@@ -8,19 +8,23 @@ jobs:
     runs-on: windows-2019
     env:
       VC_DIR: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
-      MSYS: 'D:\'
     steps:   
     - name: Install msys2
       uses: msys2/setup-msys2@v2
       with:
-        location: ${{ env.MSYS }}
-        install: base-devel autotools yasm     
+        location: D:\
+        install: base-devel autotools yasm  
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'        
 
     - name: Set path
       shell: cmd
       run: |
-        set path=${{ env.VC_DIR }};${{ env.MSYS }}msys64\mingw64\bin;${{ env.MSYS }}msys64\usr\bin;
-        set path=%path%C:\hostedtoolcache\windows\python\3.7.9\x64;C:\Program Files (x86)\Inno Setup 6;C:\Program Files\7-Zip;C:\Program Files\Git\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
+        set path=${{ env.VC_DIR }};D:\msys64\mingw64\bin;D:\msys64\usr\bin;
+        set path=%path%$pythonLocation;C:\Program Files\7-Zip;C:\Program Files\Git\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PowerShell\7\;
         echo CLEAN_PATH=%path% > %GITHUB_ENV%
    
     - name: Install polib      
@@ -41,6 +45,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
+        repository: "clsid2/mpc-hc"
+        ref: "develop"          
         fetch-depth: 0    
         submodules: true
       
@@ -49,9 +55,9 @@ jobs:
 
     - name: Build the package (x64)
       env:
-        MPCHC_MSYS: ${{ env.MSYS }}msys64
-        MPCHC_MINGW32: ${{ env.MSYS }}msys64\mingw64
-        MPCHC_MINGW64: ${{ env.MSYS }}msys64\mingw64
+        MPCHC_MSYS: D:\msys64
+        MPCHC_MINGW32: D:\msys64\mingw64
+        MPCHC_MINGW64: D:\msys64\mingw64
         MSYSTEM: MINGW32
         MSYS2_PATH_TYPE: inherit
         MPCHC_GIT: 'C:\Program Files\Git'
