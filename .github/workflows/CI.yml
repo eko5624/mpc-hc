@@ -70,7 +70,7 @@ jobs:
 
     - name: Get current timestamp      
       id: timestamp
-      run: echo "::set-output name=date::$(date +%Y-%m-%d)"
+      run: echo "date=$(date +%Y-%m-%d)" >> $GITHUB_ENV
   
     - name: Zip Packages
       run: |
@@ -85,8 +85,8 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:       
-        tag_name: MPC-HC-${{ steps.timestamp.outputs.date }}
-        name: ${{ steps.timestamp.outputs.date }}
+        tag_name: MPC-HC-${{ env.date }}
+        name: ${{ env.date }}
         body: All-in-One = MPC-HC.x64.7z+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
         files: |
           All*.7z
