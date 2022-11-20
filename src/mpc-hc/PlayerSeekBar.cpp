@@ -71,7 +71,7 @@ BOOL CPlayerSeekBar::Create(CWnd* pParentWnd)
 
     if (!AppIsThemeLoaded()) {
         CDC* pDC = GetWindowDC();
-        if (CMPCThemeUtil::getFontByType(mpcThemeFont, pDC, GetParent(), CMPCThemeUtil::MessageFont)) {
+        if (CMPCThemeUtil::getFontByType(mpcThemeFont, GetParent(), CMPCThemeUtil::MessageFont)) {
             SetFont(&mpcThemeFont);
         }
         ReleaseDC(pDC);
@@ -620,12 +620,11 @@ void CPlayerSeekBar::OnPaint()
         if (m_bHasDuration) {
             // A-B Repeat
             REFERENCE_TIME aPos, bPos;
-            bool aEnabled, bEnabled;
-            if (m_pMainFrame->CheckABRepeat(aPos, bPos, aEnabled, bEnabled)) {
-                if (aEnabled) {
+            if (m_pMainFrame->CheckABRepeat(aPos, bPos)) {
+                if (aPos) {
                     funcMarkChannel(aPos, 1, CMPCTheme::SeekbarABColor);
                 }
-                if (bEnabled) {
+                if (bPos) {
                     funcMarkChannel(bPos, 1, CMPCTheme::SeekbarABColor);
                 }
             }
@@ -701,12 +700,11 @@ void CPlayerSeekBar::OnPaint()
         if (m_bHasDuration) {
             // A-B Repeat
             REFERENCE_TIME aPos, bPos;
-            bool aEnabled, bEnabled;
-            if (m_pMainFrame->CheckABRepeat(aPos, bPos, aEnabled, bEnabled)) {
-                if (aEnabled) {
+            if (m_pMainFrame->CheckABRepeat(aPos, bPos)) {
+                if (aPos) {
                     funcMarkChannel(aPos, 0, CMPCTheme::SeekbarABColor);
                 }
-                if (bEnabled) {
+                if (bPos) {
                     funcMarkChannel(bPos, 0, CMPCTheme::SeekbarABColor);
                 }
             }
@@ -950,14 +948,10 @@ void CPlayerSeekBar::PreviewWindowShow(CPoint point) {
     }
 }
 
-//adipose: code came from mpc-be; seems to be a hidden way to
-//disable seek preview permanently by middle clicking on the seekbar
-//cannot be used to re-enable it, so perhaps a safety option if
-//preview is misbehaving? leave in for now
 void CPlayerSeekBar::OnMButtonDown(UINT nFlags, CPoint point) {
     if (m_pMainFrame->m_wndPreView.IsWindowVisible()) {
         m_pMainFrame->PreviewWindowHide();
-        AfxGetAppSettings().fSeekPreview = !AfxGetAppSettings().fSeekPreview;
+        m_pMainFrame->ReleasePreviewGraph();
         OnMouseMove(nFlags, point);
     }
 }
