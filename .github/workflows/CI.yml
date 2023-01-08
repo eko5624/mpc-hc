@@ -18,7 +18,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'        
+        python-version: '3.11'        
 
     - name: Set path
       shell: cmd
@@ -43,7 +43,7 @@ jobs:
         mv D:\nasm-2.15.05\nasm.exe 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'        
  
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@main
       with:
         repository: "clsid2/mpc-hc"
         ref: "develop"          
@@ -69,9 +69,9 @@ jobs:
         ./build.bat Build x64 MPC-HC Release 7z        
 
     - name: Get current timestamp      
-      id: timestamp
       run: echo "date=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-  
+      shell: bash
+
     - name: Zip Packages
       run: |
         $date = Get-Date -Format "yyyy-MM-dd"
@@ -83,9 +83,9 @@ jobs:
         7z a All-in-One-${date}.7z All-in-One/*
           
     - name: Create Release
-      uses: eko5624/action-gh-release@master
+      uses: softprops/action-gh-release@master
       with:       
-        tag_name: MPC-HC-${{ env.date }}
+        tag_name: ${{ env.date }}
         name: ${{ env.date }}
         body: All-in-One = MPC-HC.x64.7z+D3DCompiler_47.dll+D3DX9_43.dll+MediaInfo.dll
         files: |
